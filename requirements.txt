@@ -1,0 +1,16 @@
+# Expense Analysis Webapp Dependencies
+# Python 3.10+
+
+# Web Framework
+streamlit>=1.28.0
+
+# Data Processing
+pandas>=2.0.0
+openpyxl>=3.1.0
+
+# Data Visualization
+plotly>=5.17.0
+
+# Testing (optional for mock project)
+pytest>=7.4.0
+pytest-cov>=4.1.0
