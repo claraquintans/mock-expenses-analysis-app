@@ -10,10 +10,10 @@ import streamlit as st
 import pandas as pd
 
 from src.services.file_parser import read_excel_file, validate_file
-from src.services.calculations import calculate_current_balance, calculate_monthly_summary
+from src.services.calculations import calculate_current_balance, calculate_monthly_summary, calculate_category_breakdown
 from src.services.error_handler import display_error
 from src.visualizations.kpi_cards import display_kpi_card
-from src.visualizations.charts import create_income_expense_chart
+from src.visualizations.charts import create_income_expense_chart, create_category_breakdown_chart
 
 
 def main():
@@ -77,6 +77,18 @@ def main():
                 # Create and display the chart
                 fig = create_income_expense_chart(monthly_summary)
                 st.plotly_chart(fig, use_container_width=True)
+            
+            # Calculate and display category breakdown
+            category_breakdown = calculate_category_breakdown(df)
+            
+            if not category_breakdown.empty:
+                st.subheader("Spending by Category")
+                
+                # Create and display the stacked bar chart
+                fig_category = create_category_breakdown_chart(category_breakdown)
+                st.plotly_chart(fig_category, use_container_width=True)
+            else:
+                st.info("📊 No expense data available for category breakdown. Upload transactions with expenses (negative values) to see category analysis.")
             
         except Exception as e:
             # Display error message if file processing fails

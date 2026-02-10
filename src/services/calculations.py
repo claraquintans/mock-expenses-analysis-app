@@ -71,3 +71,52 @@ def calculate_monthly_summary(df: pd.DataFrame) -> pd.DataFrame:
     ).reset_index()
     
     return monthly
+
+
+def calculate_category_breakdown(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Group expenses by month and category.
+    
+    Args:
+        df (pd.DataFrame): Validated transactions with 'date', 'category', and 'value' columns
+        
+    Returns:
+        pd.DataFrame: DataFrame with columns:
+            - month (period): Month identifier
+            - category (str): Category name
+            - spending (float): Absolute value of expenses for that month/category
+            
+    Example:
+        >>> df = pd.DataFrame({
+        ...     'date': pd.to_datetime(['2026-01-15', '2026-01-20', '2026-02-05']),
+        ...     'category': ['Groceries', 'Dining', 'Groceries'],
+        ...     'value': [-100.0, -50.0, -75.0]
+        ... })
+        >>> breakdown = calculate_category_breakdown(df)
+        # Returns:
+        #   month, category  | spending
+        #   2026-01, Groceries | 100.0
+        #   2026-01, Dining    | 50.0
+        #   2026-02, Groceries | 75.0
+    """
+    if df.empty:
+        return pd.DataFrame(columns=['month', 'category', 'spending'])
+    
+    # Filter to expenses only (negative values)
+    expenses = df[df['value'] < 0].copy()
+    
+    if expenses.empty:
+        return pd.DataFrame(columns=['month', 'category', 'spending'])
+    
+    # Extract month from date
+    expenses['month'] = expenses['date'].dt.to_period('M')
+    
+    # Take absolute value of expenses
+    expenses['spending'] = expenses['value'].abs()
+    
+    # Group by month and category
+    breakdown = expenses.groupby(['month', 'category']).agg(
+        spending=('spending', 'sum')
+    ).reset_index()
+    
+    return breakdown

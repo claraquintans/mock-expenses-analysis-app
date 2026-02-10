@@ -94,11 +94,11 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Implement calculate_category_breakdown(df) function in src/services/calculations.py
-- [ ] T023 [US3] Implement create_category_breakdown_chart(breakdown_df) function in src/visualizations/charts.py using Plotly stacked bars
-- [ ] T024 [US3] Add category spending visualization to src/app.py below monthly trends chart
-- [ ] T025 [US3] Ensure only expenses (negative values) are included in category breakdown
-- [ ] T026 [US3] Test with categorized sample data to verify stacked bar chart rendering
+- [X] T022 [P] [US3] Implement calculate_category_breakdown(df) function in src/services/calculations.py
+- [X] T023 [US3] Implement create_category_breakdown_chart(breakdown_df) function in src/visualizations/charts.py using Plotly stacked bars
+- [X] T024 [US3] Add category spending visualization to src/app.py below monthly trends chart
+- [X] T025 [US3] Ensure only expenses (negative values) are included in category breakdown
+- [X] T026 [US3] Test with categorized sample data to verify stacked bar chart rendering
 
 **Checkpoint**: User Stories 1, 2, and 3 should all work independently
 
