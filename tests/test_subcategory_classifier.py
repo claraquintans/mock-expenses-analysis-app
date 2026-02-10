@@ -18,17 +18,17 @@ class TestFoodClassification:
     
     def test_grocery_classification(self):
         """Test that grocery stores are classified as Groceries."""
-        assert classify_food_subcategory("Walmart Groceries") == "Groceries"
-        assert classify_food_subcategory("Whole Foods Market") == "Groceries"
-        assert classify_food_subcategory("Target Grocery Store") == "Groceries"
-        assert classify_food_subcategory("Safeway Supermarket") == "Groceries"
+        assert classify_food_subcategory("Grocery Store") == "Groceries"
+        assert classify_food_subcategory("Supermarket") == "Groceries"
+        assert classify_food_subcategory("Food Store") == "Groceries"
+        assert classify_food_subcategory("Market") == "Groceries"
     
     def test_dining_classification(self):
         """Test that restaurants are classified as Other Food Sources."""
-        assert classify_food_subcategory("McDonald's") == "Other Food Sources"
-        assert classify_food_subcategory("Pizza Hut") == "Other Food Sources"
-        assert classify_food_subcategory("Starbucks Coffee") == "Other Food Sources"
-        assert classify_food_subcategory("Restaurant ABC") == "Other Food Sources"
+        assert classify_food_subcategory("Restaurant") == "Other Food Sources"
+        assert classify_food_subcategory("Cafe") == "Other Food Sources"
+        assert classify_food_subcategory("Coffee Shop") == "Other Food Sources"
+        assert classify_food_subcategory("Fast Food") == "Other Food Sources"
 
 
 class TestTransportationClassification:
@@ -53,29 +53,35 @@ class TestHobbiesClassification:
     
     def test_streaming_classification(self):
         """Test that streaming services are classified correctly."""
-        assert classify_hobbies_subcategory("Netflix Subscription") == "Streaming"
-        assert classify_hobbies_subcategory("Spotify Premium") == "Streaming"
-        assert classify_hobbies_subcategory("Disney Plus") == "Streaming"
-        assert classify_hobbies_subcategory("HBO Max") == "Streaming"
+        assert classify_hobbies_subcategory("Streaming Service") == "Streaming"
+        assert classify_hobbies_subcategory("Music Subscription") == "Streaming"
+        assert classify_hobbies_subcategory("Video Subscription") == "Streaming"
     
     def test_fitness_classification(self):
         """Test that fitness services are classified correctly."""
-        assert classify_hobbies_subcategory("LA Fitness Gym") == "Fitness"
-        assert classify_hobbies_subcategory("Planet Fitness") == "Fitness"
+        assert classify_hobbies_subcategory("Gym Membership") == "Fitness"
+        assert classify_hobbies_subcategory("Fitness Center") == "Fitness"
         assert classify_hobbies_subcategory("Yoga Studio") == "Fitness"
-        assert classify_hobbies_subcategory("Peloton Subscription") == "Fitness"
+        assert classify_hobbies_subcategory("Workout Subscription") == "Fitness"
     
     def test_gaming_classification(self):
         """Test that gaming services are classified correctly."""
-        assert classify_hobbies_subcategory("Xbox Game Pass") == "Gaming"
-        assert classify_hobbies_subcategory("PlayStation Plus") == "Gaming"
-        assert classify_hobbies_subcategory("Steam Purchase") == "Gaming"
+        assert classify_hobbies_subcategory("Game Pass") == "Gaming"
+        assert classify_hobbies_subcategory("Gaming Subscription") == "Gaming"
+        assert classify_hobbies_subcategory("Video Game") == "Gaming"
     
     def test_educational_classification(self):
         """Test that educational services are classified correctly."""
-        assert classify_hobbies_subcategory("Coursera Course") == "Educational"
-        assert classify_hobbies_subcategory("Udemy Learning") == "Educational"
-        assert classify_hobbies_subcategory("Skillshare") == "Educational"
+        assert classify_hobbies_subcategory("Online Course") == "Educational"
+        assert classify_hobbies_subcategory("Learning Platform") == "Educational"
+        assert classify_hobbies_subcategory("Education Subscription") == "Educational"
+    
+    def test_books_classification(self):
+        """Test that books and reading services are classified correctly."""
+        assert classify_hobbies_subcategory("Book Store") == "Books"
+        assert classify_hobbies_subcategory("Audiobook Subscription") == "Books"
+        assert classify_hobbies_subcategory("Ebook Purchase") == "Books"
+        assert classify_hobbies_subcategory("Magazine Subscription") == "Books"
 
 
 class TestAddSubcategoryColumn:
@@ -84,7 +90,7 @@ class TestAddSubcategoryColumn:
     def test_add_subcategory_to_dataframe(self):
         """Test that subcategory column is added correctly."""
         df = pd.DataFrame({
-            'description': ['Walmart Groceries', 'Metro Bus', 'Netflix'],
+            'description': ['Grocery Store', 'Metro Bus', 'Streaming Service'],
             'category': ['Groceries', 'Transport', 'Entertainment'],
             'value': [-100.0, -5.0, -15.99]
         })
@@ -100,10 +106,9 @@ class TestAddSubcategoryColumn:
     def test_empty_dataframe(self):
         """Test handling of empty DataFrame."""
         df = pd.DataFrame(columns=['description', 'category', 'value'])
-        result = add_subcategory_column(df)
         
-        assert 'subcategory' in result.columns
-        assert len(result) == 0
+        with pytest.raises(ValueError, match="DataFrame cannot be empty"):
+            add_subcategory_column(df)
 
 
 class TestCalculateSubcategoryBreakdown:
@@ -112,7 +117,7 @@ class TestCalculateSubcategoryBreakdown:
     def test_food_category_breakdown(self):
         """Test food category breakdown with Groceries and Dining."""
         df = pd.DataFrame({
-            'description': ['Walmart', 'Starbucks', 'Target Groceries', 'Restaurant'],
+            'description': ['Grocery Store', 'Coffee Shop', 'Supermarket', 'Restaurant'],
             'category': ['Groceries', 'Dining', 'Groceries', 'Dining'],
             'value': [-100.0, -10.0, -150.0, -40.0],
             'date': pd.to_datetime(['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04'])
@@ -182,7 +187,7 @@ class TestCalculateSubcategoryBreakdown:
     def test_percentages_and_amounts(self):
         """Test that amounts and percentages are calculated correctly."""
         df = pd.DataFrame({
-            'description': ['Netflix', 'Spotify', 'LA Fitness'],
+            'description': ['Streaming Service', 'Music Subscription', 'Gym Membership'],
             'category': ['Entertainment', 'Entertainment', 'Entertainment'],
             'value': [-15.99, -9.99, -49.00],
             'date': pd.to_datetime(['2026-01-01', '2026-01-02', '2026-01-03'])
@@ -201,3 +206,10 @@ class TestCalculateSubcategoryBreakdown:
         
         # Verify total amount
         assert abs(breakdown['amount'].sum() - 74.98) < 0.01
+    
+    def test_empty_dataframe_error(self):
+        """Test that empty DataFrame raises ValueError."""
+        df = pd.DataFrame(columns=['description', 'category', 'value', 'date'])
+        
+        with pytest.raises(ValueError, match="DataFrame cannot be empty"):
+            calculate_subcategory_breakdown(df, 'food')

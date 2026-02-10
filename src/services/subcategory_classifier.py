@@ -19,14 +19,14 @@ def classify_food_subcategory(description: str) -> str:
     Returns:
         str: 'Groceries' or 'Other Food Sources'
     """
-    description_lower = description.lower()
+    # Remove punctuation and special characters, convert to lowercase
+    import re
+    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Keywords for groceries
     grocery_keywords = [
         'grocery', 'groceries', 'supermarket', 'market', 'store',
-        'walmart', 'target', 'costco', 'safeway', 'kroger', 'whole foods',
-        'trader joe', 'aldi', 'publix', 'wegmans', 'food lion',
-        'albertsons', 'giant', 'stop & shop', 'food store'
+        'food store'
     ]
     
     # Check if description matches grocery keywords
@@ -48,13 +48,15 @@ def classify_transportation_subcategory(description: str) -> str:
     Returns:
         str: 'Public Transportation' or 'Private Transportation'
     """
-    description_lower = description.lower()
+    # Remove punctuation and special characters, convert to lowercase
+    import re
+    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Keywords for public transportation
     public_transport_keywords = [
         'bus', 'metro', 'subway', 'train', 'tram', 'transit',
         'rail', 'metro card', 'transit pass', 'public transport',
-        'uber pool', 'lyft shared', 'taxi share', 'rail pass'
+        'rail pass'
     ]
     
     # Check if description matches public transport keywords
@@ -74,39 +76,35 @@ def classify_hobbies_subcategory(description: str) -> str:
         description (str): Transaction description
         
     Returns:
-        str: Subscription type (streaming, fitness, gaming, educational, etc.)
+        str: Subscription type (streaming, fitness, gaming, educational, books, etc.)
     """
-    description_lower = description.lower()
+    # Remove punctuation and special characters, convert to lowercase
+    import re
+    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Define subcategories with keywords
     subcategory_keywords = {
         'Streaming': [
-            'netflix', 'hulu', 'disney', 'disney+', 'hbo', 'max', 'amazon prime',
-            'prime video', 'spotify', 'apple music', 'youtube premium', 'paramount',
-            'peacock', 'crunchyroll', 'streaming', 'music subscription'
+            'streaming', 'music subscription', 'video subscription'
         ],
         'Fitness': [
-            'gym', 'fitness', 'yoga', 'pilates', 'crossfit', 'peloton',
-            'planet fitness', 'la fitness', '24 hour fitness', 'gold\'s gym',
-            'equinox', 'workout', 'health club', 'sports club'
+            'gym', 'fitness', 'yoga', 'pilates', 'crossfit',
+            'workout', 'health club', 'sports club'
         ],
         'Gaming': [
-            'xbox', 'playstation', 'nintendo', 'steam', 'epic games',
-            'game pass', 'ps plus', 'nintendo online', 'gaming', 'twitch',
-            'discord nitro', 'game subscription'
+            'game pass', 'gaming', 'game subscription', 'video game'
         ],
         'Educational': [
-            'coursera', 'udemy', 'skillshare', 'masterclass', 'linkedin learning',
-            'pluralsight', 'datacamp', 'codecademy', 'online course', 'learning',
-            'education', 'audible', 'kindle unlimited', 'scribd'
+            'online course', 'learning', 'education', 'course'
+        ],
+        'Books': [
+            'book', 'books', 'reading', 'audiobook', 'ebook', 'magazine'
         ],
         'News & Media': [
-            'news', 'newspaper', 'magazine', 'times', 'post', 'journal',
-            'medium', 'substack', 'patreon', 'publication'
+            'news', 'newspaper', 'publication'
         ],
         'Professional': [
-            'adobe', 'creative cloud', 'microsoft 365', 'office 365', 'dropbox',
-            'google workspace', 'slack', 'zoom', 'canva', 'grammarly', 'notion'
+            'creative cloud', 'workspace', 'cloud storage', 'productivity'
         ]
     }
     
@@ -129,26 +127,35 @@ def add_subcategory_column(df: pd.DataFrame) -> pd.DataFrame:
         
     Returns:
         pd.DataFrame: DataFrame with added 'subcategory' column
+        
+    Raises:
+        ValueError: If DataFrame is empty
     """
     if df.empty:
-        df['subcategory'] = []
-        return df
+        raise ValueError("DataFrame cannot be empty")
     
     df_copy = df.copy()
+    
+    # Define category patterns to check
+    food_patterns = ['food', 'groceries', 'dining']
+    transport_patterns = ['transport']
+    hobbies_patterns = ['hobbies', 'subscription', 'entertainment']
     
     def classify_row(row):
         category = row['category']
         description = row['description']
         
-        # Map category names to classification functions
         # Handle variations in category names (case-insensitive)
         category_lower = category.lower()
         
-        if 'food' in category_lower or 'groceries' in category_lower or 'dining' in category_lower:
+        # Check if category matches food patterns
+        if any(pattern in category_lower for pattern in food_patterns):
             return classify_food_subcategory(description)
-        elif 'transport' in category_lower:
+        # Check if category matches transport patterns
+        elif any(pattern in category_lower for pattern in transport_patterns):
             return classify_transportation_subcategory(description)
-        elif 'hobbies' in category_lower or 'subscription' in category_lower or 'entertainment' in category_lower:
+        # Check if category matches hobbies patterns
+        elif any(pattern in category_lower for pattern in hobbies_patterns):
             return classify_hobbies_subcategory(description)
         else:
             # For other categories, use the category name as subcategory
@@ -172,9 +179,12 @@ def calculate_subcategory_breakdown(df: pd.DataFrame, category: str) -> pd.DataF
             - subcategory (str): Subcategory name
             - amount (float): Absolute total spending
             - percentage (float): Percentage of category total (0-100)
+            
+    Raises:
+        ValueError: If DataFrame is empty
     """
     if df.empty:
-        return pd.DataFrame(columns=['subcategory', 'amount', 'percentage'])
+        raise ValueError("DataFrame cannot be empty")
     
     # Add subcategory if not present
     if 'subcategory' not in df.columns:
@@ -210,26 +220,30 @@ def calculate_subcategory_breakdown(df: pd.DataFrame, category: str) -> pd.DataF
 
 def get_all_category_breakdowns(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """
-    Get subcategory breakdowns for all main categories.
+    Get subcategory breakdowns for all categories in the DataFrame.
     
     Args:
         df (pd.DataFrame): Transactions DataFrame
         
     Returns:
         Dict[str, pd.DataFrame]: Dictionary mapping category names to their subcategory breakdowns
+        
+    Raises:
+        ValueError: If DataFrame is empty
     """
     if df.empty:
-        return {}
+        raise ValueError("DataFrame cannot be empty")
     
     # Add subcategory column
     df_with_subcategory = add_subcategory_column(df)
     
-    # Define main categories to analyze
-    main_categories = ['Food', 'Transport', 'Hobbies']
+    # Get all unique categories from the dataframe (expenses only)
+    expenses = df_with_subcategory[df_with_subcategory['value'] < 0]
+    unique_categories = expenses['category'].unique()
     
     breakdowns = {}
     
-    for category in main_categories:
+    for category in unique_categories:
         breakdown = calculate_subcategory_breakdown(df_with_subcategory, category)
         if not breakdown.empty:
             breakdowns[category] = breakdown
