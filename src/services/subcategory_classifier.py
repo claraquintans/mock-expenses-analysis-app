@@ -5,6 +5,7 @@ Classifies transactions into subcategories based on category and description.
 Supports Food, Transportation, and Hobbies & Subscriptions categories.
 """
 
+import re
 import pandas as pd
 from typing import Dict
 
@@ -20,7 +21,6 @@ def classify_food_subcategory(description: str) -> str:
         str: 'Groceries' or 'Other Food Sources'
     """
     # Remove punctuation and special characters, convert to lowercase
-    import re
     description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Keywords for groceries
@@ -49,7 +49,6 @@ def classify_transportation_subcategory(description: str) -> str:
         str: 'Public Transportation' or 'Private Transportation'
     """
     # Remove punctuation and special characters, convert to lowercase
-    import re
     description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Keywords for public transportation
@@ -79,7 +78,6 @@ def classify_hobbies_subcategory(description: str) -> str:
         str: Subscription type (streaming, fitness, gaming, educational, books, etc.)
     """
     # Remove punctuation and special characters, convert to lowercase
-    import re
     description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
     
     # Define subcategories with keywords
@@ -98,10 +96,10 @@ def classify_hobbies_subcategory(description: str) -> str:
             'online course', 'learning', 'education', 'course'
         ],
         'Books': [
-            'book', 'books', 'reading', 'audiobook', 'ebook', 'magazine'
+            'book', 'books', 'reading', 'audiobook', 'ebook'
         ],
         'News & Media': [
-            'news', 'newspaper', 'publication'
+            'news', 'newspaper', 'magazine', 'publication'
         ],
         'Professional': [
             'creative cloud', 'workspace', 'cloud storage', 'productivity'

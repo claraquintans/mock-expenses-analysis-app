@@ -81,7 +81,7 @@ class TestHobbiesClassification:
         assert classify_hobbies_subcategory("Book Store") == "Books"
         assert classify_hobbies_subcategory("Audiobook Subscription") == "Books"
         assert classify_hobbies_subcategory("Ebook Purchase") == "Books"
-        assert classify_hobbies_subcategory("Magazine Subscription") == "Books"
+        assert classify_hobbies_subcategory("Reading Subscription") == "Books"
 
 
 class TestAddSubcategoryColumn:
