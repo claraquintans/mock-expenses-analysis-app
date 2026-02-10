@@ -131,12 +131,12 @@
 
 ### Implementation for User Story 5
 
-- [ ] T033 [P] [US5] Implement calculate_financial_metrics(df, monthly_df) function in src/services/metrics.py
-- [ ] T034 [US5] Implement display_best_worst_months(best, worst) function in src/visualizations/kpi_cards.py
-- [ ] T035 [US5] Add average savings KPI card to src/app.py using existing display_kpi_card()
-- [ ] T036 [US5] Add best/worst month KPI cards to src/app.py below other metrics
-- [ ] T037 [US5] Format month names (e.g., "January 2026") and currency values properly
-- [ ] T038 [US5] Test with multi-month sample data to verify metrics accuracy
+- [X] T033 [P] [US5] Implement calculate_financial_metrics(df, monthly_df) function in src/services/metrics.py
+- [X] T034 [US5] Implement display_best_worst_months(best, worst) function in src/visualizations/kpi_cards.py
+- [X] T035 [US5] Add average savings KPI card to src/app.py using existing display_kpi_card()
+- [X] T036 [US5] Add best/worst month KPI cards to src/app.py below other metrics
+- [X] T037 [US5] Format month names (e.g., "January 2026") and currency values properly
+- [X] T038 [US5] Test with multi-month sample data to verify metrics accuracy
 
 **Checkpoint**: All user stories (1-5) should now be independently functional
 

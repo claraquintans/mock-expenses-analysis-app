@@ -11,8 +11,9 @@ import pandas as pd
 
 from src.services.file_parser import read_excel_file, validate_file
 from src.services.calculations import calculate_current_balance, calculate_monthly_summary, calculate_category_breakdown, calculate_rolling_average
+from src.services.metrics import calculate_financial_metrics
 from src.services.error_handler import display_error
-from src.visualizations.kpi_cards import display_kpi_card
+from src.visualizations.kpi_cards import display_kpi_card, display_best_worst_months
 from src.visualizations.charts import create_income_expense_chart, create_category_breakdown_chart, create_rolling_average_chart
 
 
@@ -104,6 +105,24 @@ def main():
             else:
                 # Show message if less than 3 months of data available
                 st.info("📊 Insufficient data for rolling average trend. Upload at least 3 months of expense transactions to see the 3-month rolling average.")
+            
+            # Calculate and display financial summary metrics (User Story 5: P5)
+            if not monthly_summary.empty:
+                st.subheader("Financial Summary Metrics")
+                
+                # Calculate financial metrics
+                metrics = calculate_financial_metrics(df, monthly_summary)
+                
+                # Display average savings KPI card
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    display_kpi_card("Current Balance", metrics['current_balance'])
+                with col2:
+                    display_kpi_card("Average Monthly Savings", metrics['average_monthly_savings'])
+                
+                # Display best/worst month KPI cards
+                st.markdown("---")
+                display_best_worst_months(metrics['best_month'], metrics['worst_month'])
             
         except Exception as e:
             # Display error message if file processing fails
