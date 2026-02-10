@@ -25,8 +25,11 @@ def display_kpi_card(title: str, value: float, format_currency: bool = True, del
         >>> display_kpi_card("Total Transactions", 125, format_currency=False)
         # Displays a metric card showing "Total Transactions: 125"
     """
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     if format_currency:
-        formatted_value = f"${value:,.2f}"
+        formatted_value = f"{currency_symbol}{value:,.2f}"
     else:
         formatted_value = f"{value:,.0f}"
     
@@ -53,6 +56,9 @@ def display_best_worst_months(best: dict, worst: dict) -> None:
         >>> display_best_worst_months(best, worst)
         # Displays two metric cards side by side showing best and worst months
     """
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     col1, col2 = st.columns(2)
     
     with col1:
@@ -60,7 +66,7 @@ def display_best_worst_months(best: dict, worst: dict) -> None:
         delta_value = best['net_income'] * 0.0001 if best['net_income'] > 0 else None
         st.metric(
             label=f"🏆 Best Month: {best['month']}",
-            value=f"${best['net_income']:,.2f}",
+            value=f"{currency_symbol}{best['net_income']:,.2f}",
             delta=delta_value,
             delta_color="normal"
         )
@@ -70,7 +76,7 @@ def display_best_worst_months(best: dict, worst: dict) -> None:
         delta_value = worst['net_income'] * 0.0001 if worst['net_income'] < 0 else None
         st.metric(
             label=f"📉 Worst Month: {worst['month']}",
-            value=f"${worst['net_income']:,.2f}",
+            value=f"{currency_symbol}{worst['net_income']:,.2f}",
             delta=delta_value,
             delta_color="inverse" if worst['net_income'] < 0 else "normal"
         )

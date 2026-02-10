@@ -4,7 +4,61 @@ Handles Excel file reading and validation for the expense analysis webapp.
 """
 
 import pandas as pd
-from typing import Any
+import re
+from typing import Any, Tuple, Optional
+
+
+def detect_currency_symbol(value_series: pd.Series) -> Optional[str]:
+    """
+    Detects currency symbols in a pandas Series of values.
+    
+    Args:
+        value_series: pandas Series containing monetary values
+        
+    Returns:
+        Optional[str]: Detected currency symbol (e.g., '$', '€', '£') or None if no symbol found
+        
+    Raises:
+        ValueError: If multiple different currency symbols are detected
+    """
+    # Common currency symbols to detect
+    currency_pattern = r'[\$€£¥₹¢₽₩₪₱฿₴₦₨₡₲₵₸₺₼₾₿]'
+    
+    detected_currencies = set()
+    
+    # Convert to string and check each value for currency symbols
+    for value in value_series.astype(str):
+        matches = re.findall(currency_pattern, value)
+        if matches:
+            detected_currencies.update(matches)
+    
+    # If no currencies detected
+    if not detected_currencies:
+        return None
+    
+    # If multiple different currencies detected
+    if len(detected_currencies) > 1:
+        raise ValueError(
+            "Multiple currencies detected. Please ensure all values use the same currency."
+        )
+    
+    # Return the single detected currency
+    return detected_currencies.pop()
+
+
+def strip_currency_symbols(value_series: pd.Series) -> pd.Series:
+    """
+    Strips currency symbols from monetary values.
+    
+    Args:
+        value_series: pandas Series containing monetary values with currency symbols
+        
+    Returns:
+        pd.Series: Series with currency symbols removed
+    """
+    # Remove common currency symbols and any whitespace
+    currency_pattern = r'[\$€£¥₹¢₽₩₪₱฿₴₦₨₡₲₵₸₺₼₾₿\s]'
+    return value_series.astype(str).str.replace(currency_pattern, '', regex=True)
 
 
 def read_excel_file(uploaded_file: Any) -> pd.DataFrame:
@@ -27,7 +81,7 @@ def read_excel_file(uploaded_file: Any) -> pd.DataFrame:
         raise Exception(f"Failed to read Excel file: {str(e)}")
 
 
-def validate_file(df: pd.DataFrame) -> pd.DataFrame:
+def validate_file(df: pd.DataFrame) -> Tuple[pd.DataFrame, Optional[str]]:
     """
     Validates an uploaded Excel file's structure and data.
     
@@ -35,17 +89,20 @@ def validate_file(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): Raw DataFrame loaded from Excel file
         
     Returns:
-        pd.DataFrame: Validated and cleaned DataFrame with correct types
+        Tuple[pd.DataFrame, Optional[str]]: Validated and cleaned DataFrame with correct types,
+                                            and detected currency symbol (or None if no currency)
         
     Raises:
-        ValueError: If file structure is invalid (wrong columns, missing data, invalid types)
+        ValueError: If file structure is invalid (wrong columns, missing data, invalid types, 
+                    or multiple currencies detected)
         
     Validation Rules:
         1. DataFrame must have exactly 4 columns
         2. Columns must be named: ['date', 'description', 'category', 'value']
         3. 'date' column must contain valid dates (parseable by pandas)
-        4. 'value' column must contain numeric data
+        4. 'value' column must contain numeric data (after stripping currency symbols)
         5. DataFrame must have at least one data row (beyond header)
+        6. Only one currency symbol type allowed per file
     """
     # Check column count
     if len(df.columns) != 4:
@@ -70,8 +127,13 @@ def validate_file(df: pd.DataFrame) -> pd.DataFrame:
     except Exception:
         raise ValueError("Invalid dates found in date column")
     
-    # Validate value column
+    # Detect currency symbol (before stripping)
+    currency_symbol = detect_currency_symbol(df['value'])
+    
+    # Validate value column (strip currency symbols first if present)
     try:
+        if currency_symbol:
+            df['value'] = strip_currency_symbols(df['value'])
         df['value'] = pd.to_numeric(df['value'])
     except Exception:
         raise ValueError("Invalid numeric values found in value column")
@@ -80,4 +142,4 @@ def validate_file(df: pd.DataFrame) -> pd.DataFrame:
     df['description'] = df['description'].astype(str)
     df['category'] = df['category'].astype(str)
     
-    return df
+    return df, currency_symbol
