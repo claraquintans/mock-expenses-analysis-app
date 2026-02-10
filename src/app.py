@@ -10,9 +10,10 @@ import streamlit as st
 import pandas as pd
 
 from src.services.file_parser import read_excel_file, validate_file
-from src.services.calculations import calculate_current_balance
+from src.services.calculations import calculate_current_balance, calculate_monthly_summary
 from src.services.error_handler import display_error
 from src.visualizations.kpi_cards import display_kpi_card
+from src.visualizations.charts import create_income_expense_chart
 
 
 def main():
@@ -60,6 +61,22 @@ def main():
             col1, col2, col3 = st.columns(3)
             with col1:
                 display_kpi_card("Current Balance", balance)
+            
+            # Calculate monthly summary
+            monthly_summary = calculate_monthly_summary(df)
+            
+            # Display monthly income vs expenses chart (if data available)
+            if not monthly_summary.empty:
+                st.subheader("Monthly Income vs Expenses")
+                
+                # Handle edge case: sparse data with missing months
+                # The chart will show actual data points; gaps indicate missing months
+                if len(monthly_summary) == 1:
+                    st.info("📊 Only one month of data available. Upload more transactions to see trends over time.")
+                
+                # Create and display the chart
+                fig = create_income_expense_chart(monthly_summary)
+                st.plotly_chart(fig, use_container_width=True)
             
         except Exception as e:
             # Display error message if file processing fails

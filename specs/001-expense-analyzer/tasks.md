@@ -76,11 +76,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement calculate_monthly_summary(df) function in src/services/calculations.py
-- [ ] T018 [US2] Implement create_income_expense_chart(monthly_df) function in src/visualizations/charts.py using Plotly
-- [ ] T019 [US2] Add monthly income vs expenses visualization to src/app.py below balance KPI
-- [ ] T020 [US2] Handle edge case: sparse data with missing months (show zeros or skip gaps)
-- [ ] T021 [US2] Test with multi-month sample data to verify chart accuracy
+- [X] T017 [P] [US2] Implement calculate_monthly_summary(df) function in src/services/calculations.py
+- [X] T018 [US2] Implement create_income_expense_chart(monthly_df) function in src/visualizations/charts.py using Plotly
+- [X] T019 [US2] Add monthly income vs expenses visualization to src/app.py below balance KPI
+- [X] T020 [US2] Handle edge case: sparse data with missing months (show zeros or skip gaps)
+- [X] T021 [US2] Test with multi-month sample data to verify chart accuracy
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
