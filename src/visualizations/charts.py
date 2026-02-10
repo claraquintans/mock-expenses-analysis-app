@@ -7,7 +7,6 @@ financial data in interactive visualizations.
 
 import pandas as pd
 import plotly.graph_objects as go
-import plotly.express as px
 
 
 def create_income_expense_chart(monthly: pd.DataFrame) -> go.Figure:
@@ -264,7 +263,7 @@ def create_subcategory_breakdown_chart(breakdown: pd.DataFrame, category_name: s
         # Return empty figure with message
         fig = go.Figure()
         fig.add_annotation(
-            text=f"No data available for this category",
+            text="No data available for this category",
             xref="paper",
             yref="paper",
             x=0.5,

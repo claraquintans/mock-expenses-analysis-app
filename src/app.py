@@ -199,7 +199,7 @@ def main():
                         breakdown_display.columns = ['Subcategory', 'Amount', 'Percentage']
                         st.dataframe(breakdown_display, use_container_width=True, hide_index=True)
                     else:
-                        st.info(f"No data available for this category")
+                        st.info("No data available for this category")
             
         except Exception as e:
             # Display error message if file processing fails

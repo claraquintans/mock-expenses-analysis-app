@@ -6,7 +6,7 @@ Supports Food, Transportation, and Hobbies & Subscriptions categories.
 """
 
 import pandas as pd
-from typing import Dict, List
+from typing import Dict
 
 
 def classify_food_subcategory(description: str) -> str:
