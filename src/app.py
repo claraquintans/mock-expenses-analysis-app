@@ -169,12 +169,11 @@ def main():
                             else:
                                 # Merge if multiple keywords match
                                 breakdown = pd.concat([breakdown, temp_breakdown]).groupby('subcategory').agg({
-                                    'amount': 'sum',
-                                    'percentage': 'sum'
+                                    'amount': 'sum'
                                 }).reset_index()
                     
                     if breakdown is not None and not breakdown.empty:
-                        # Recalculate percentages after merging
+                        # Calculate percentages after merging
                         total = breakdown['amount'].sum()
                         breakdown['percentage'] = (breakdown['amount'] / total) * 100
                         breakdown = breakdown.sort_values('amount', ascending=False)
