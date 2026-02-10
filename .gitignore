@@ -2,6 +2,7 @@
 .vscode/
 .github/
 .specify/
+.specs/
 
 # Python
 venv/
