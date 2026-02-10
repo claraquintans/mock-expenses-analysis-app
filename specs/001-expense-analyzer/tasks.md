@@ -112,12 +112,12 @@
 
 ### Implementation for User Story 4
 
-- [ ] T027 [P] [US4] Implement calculate_rolling_average(df, window=3) function in src/services/calculations.py
-- [ ] T028 [US4] Implement create_rolling_average_chart(rolling_series) function in src/visualizations/charts.py using Plotly
-- [ ] T029 [US4] Add rolling average visualization to src/app.py below category breakdown chart
-- [ ] T030 [US4] Add conditional display: show message if less than 3 months of data available
-- [ ] T031 [US4] Filter to expenses only (negative values) when calculating rolling average
-- [ ] T032 [US4] Test with 3+ months of sample data to verify rolling calculation
+- [X] T027 [P] [US4] Implement calculate_rolling_average(df, window=3) function in src/services/calculations.py
+- [X] T028 [US4] Implement create_rolling_average_chart(rolling_series) function in src/visualizations/charts.py using Plotly
+- [X] T029 [US4] Add rolling average visualization to src/app.py below category breakdown chart
+- [X] T030 [US4] Add conditional display: show message if less than 3 months of data available
+- [X] T031 [US4] Filter to expenses only (negative values) when calculating rolling average
+- [X] T032 [US4] Test with 3+ months of sample data to verify rolling calculation
 
 **Checkpoint**: User Stories 1-4 should all work independently
 

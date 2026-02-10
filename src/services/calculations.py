@@ -120,3 +120,57 @@ def calculate_category_breakdown(df: pd.DataFrame) -> pd.DataFrame:
     ).reset_index()
     
     return breakdown
+
+
+def calculate_rolling_average(df: pd.DataFrame, window: int = 3) -> pd.Series:
+    """
+    Calculate rolling average of monthly expenses.
+    
+    Args:
+        df (pd.DataFrame): Validated transactions with 'date' and 'value' columns
+        window (int): Number of months for rolling window (default: 3)
+        
+    Returns:
+        pd.Series: Rolling average of expenses indexed by month.
+                  Only includes months with sufficient history (≥ window size).
+                  
+    Example:
+        >>> df = pd.DataFrame({
+        ...     'date': pd.to_datetime(['2026-01-15', '2026-02-10', '2026-03-05', '2026-04-12']),
+        ...     'value': [-100.0, -200.0, -150.0, -180.0]
+        ... })
+        >>> rolling = calculate_rolling_average(df, window=3)
+        # Returns Series:
+        #   2026-03 -> 150.0  (avg of 100, 200, 150)
+        #   2026-04 -> 176.67 (avg of 200, 150, 180)
+        # First 2 months omitted (insufficient data)
+    """
+    if df.empty:
+        return pd.Series(dtype=float)
+    
+    # Filter to expenses only (negative values)
+    expenses = df[df['value'] < 0].copy()
+    
+    if expenses.empty:
+        return pd.Series(dtype=float)
+    
+    # Ensure date column is datetime
+    if not pd.api.types.is_datetime64_any_dtype(expenses['date']):
+        expenses['date'] = pd.to_datetime(expenses['date'])
+    
+    # Extract month from date
+    expenses['month'] = expenses['date'].dt.to_period('M')
+    
+    # Take absolute value of expenses
+    expenses['abs_value'] = expenses['value'].abs()
+    
+    # Group by month and sum expenses
+    monthly_expenses = expenses.groupby('month')['abs_value'].sum()
+    
+    # Apply rolling window calculation
+    rolling = monthly_expenses.rolling(window=window).mean()
+    
+    # Drop NaN values (first window-1 months)
+    rolling = rolling.dropna()
+    
+    return rolling

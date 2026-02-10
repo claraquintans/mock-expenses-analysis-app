@@ -167,3 +167,73 @@ def create_category_breakdown_chart(breakdown: pd.DataFrame) -> go.Figure:
     )
     
     return fig
+
+
+def create_rolling_average_chart(rolling: pd.Series) -> go.Figure:
+    """
+    Create a line chart showing the 3-month rolling average of expenses.
+    
+    Args:
+        rolling (pd.Series): Rolling average indexed by month
+        
+    Returns:
+        plotly.graph_objects.Figure: Line chart
+        
+    Chart Specifications:
+        - X-axis: Month
+        - Y-axis: Average spending (currency)
+        - Single line with markers
+        - Title: "3-Month Rolling Spending Average"
+        
+    Example:
+        >>> rolling = pd.Series({
+        ...     pd.Period('2026-03'): 150.0,
+        ...     pd.Period('2026-04'): 160.0,
+        ...     pd.Period('2026-05'): 155.0
+        ... })
+        >>> fig = create_rolling_average_chart(rolling)
+        >>> st.plotly_chart(fig, use_container_width=True)
+    """
+    if rolling.empty:
+        # Return empty figure with message
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Insufficient data for rolling average (need at least 3 months)",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=16)
+        )
+        return fig
+    
+    # Convert period index to string for plotting
+    months_str = rolling.index.astype(str)
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Add rolling average line
+    fig.add_trace(go.Scatter(
+        x=months_str,
+        y=rolling.values,
+        mode='lines+markers',
+        name='3-Month Average',
+        line=dict(color='#8b5cf6', width=3),
+        marker=dict(size=10),
+        text=[f'${val:.2f}' for val in rolling.values],
+        textposition='top center'
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title='3-Month Rolling Spending Average',
+        xaxis_title='Month',
+        yaxis_title='Average Spending ($)',
+        hovermode='x unified',
+        showlegend=False,
+        margin=dict(l=50, r=50, t=80, b=50)
+    )
+    
+    return fig
