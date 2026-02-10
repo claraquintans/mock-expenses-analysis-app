@@ -3,8 +3,9 @@ Manual validation script for category breakdown analysis.
 Tests the complete flow with sample data.
 """
 
+import sys
 import pandas as pd
-from src.services.file_parser import read_excel_file, validate_file
+from src.services.file_parser import validate_file
 from src.services.subcategory_classifier import add_subcategory_column, calculate_subcategory_breakdown
 
 print("=" * 80)
@@ -14,9 +15,18 @@ print()
 
 # Load sample data
 print("1. Loading sample data...")
-df = pd.read_excel('data/sample_transactions.xlsx')
-df = validate_file(df)
-print(f"   ✓ Loaded {len(df)} transactions")
+try:
+    df = pd.read_excel('data/sample_transactions.xlsx')
+    df = validate_file(df)
+    print(f"   ✓ Loaded {len(df)} transactions")
+except FileNotFoundError:
+    print("   ✗ Error: Could not load sample_transactions.xlsx.")
+    print("   Please ensure the file exists in the data directory.")
+    print("   Run 'python create_enhanced_sample_data.py' to create sample data.")
+    sys.exit(1)
+except Exception as e:
+    print(f"   ✗ Error loading data: {str(e)}")
+    sys.exit(1)
 print()
 
 # Add subcategory column
