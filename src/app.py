@@ -13,8 +13,9 @@ from src.services.file_parser import read_excel_file, validate_file
 from src.services.calculations import calculate_current_balance, calculate_monthly_summary, calculate_category_breakdown, calculate_rolling_average
 from src.services.metrics import calculate_financial_metrics
 from src.services.error_handler import display_error
+from src.services.subcategory_classifier import calculate_subcategory_breakdown, add_subcategory_column
 from src.visualizations.kpi_cards import display_kpi_card, display_best_worst_months
-from src.visualizations.charts import create_income_expense_chart, create_category_breakdown_chart, create_rolling_average_chart
+from src.visualizations.charts import create_income_expense_chart, create_category_breakdown_chart, create_rolling_average_chart, create_subcategory_breakdown_chart
 
 
 def main():
@@ -138,6 +139,66 @@ def main():
                 # Display best/worst month KPI cards
                 st.markdown("####")
                 display_best_worst_months(metrics['best_month'], metrics['worst_month'])
+            
+            # Category Breakdown Analysis Section
+            st.markdown("---")
+            st.subheader("📂 Category Breakdown Analysis")
+            
+            # Add subcategory column to the dataframe
+            df_with_subcategory = add_subcategory_column(df)
+            
+            # Define categories to analyze
+            categories_to_analyze = [
+                ('Food', ['food', 'groceries', 'dining']),
+                ('Transportation', ['transport']),
+                ('Hobbies & Subscriptions', ['hobbies', 'subscription', 'entertainment'])
+            ]
+            
+            # Create tabs for each category
+            tabs = st.tabs([cat[0] for cat in categories_to_analyze])
+            
+            for idx, (category_name, category_keywords) in enumerate(categories_to_analyze):
+                with tabs[idx]:
+                    # Calculate subcategory breakdown for this category
+                    breakdown = None
+                    for keyword in category_keywords:
+                        temp_breakdown = calculate_subcategory_breakdown(df_with_subcategory, keyword)
+                        if not temp_breakdown.empty:
+                            if breakdown is None:
+                                breakdown = temp_breakdown
+                            else:
+                                # Merge if multiple keywords match
+                                breakdown = pd.concat([breakdown, temp_breakdown]).groupby('subcategory').agg({
+                                    'amount': 'sum'
+                                }).reset_index()
+                    
+                    if breakdown is not None and not breakdown.empty:
+                        # Calculate percentages after merging
+                        total = breakdown['amount'].sum()
+                        breakdown['percentage'] = (breakdown['amount'] / total) * 100
+                        breakdown = breakdown.sort_values('amount', ascending=False)
+                        
+                        # Display summary metrics
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Total Spending", f"${breakdown['amount'].sum():.2f}")
+                        with col2:
+                            st.metric("Number of Subcategories", len(breakdown))
+                        
+                        # Display breakdown chart
+                        st.markdown("###")
+                        fig = create_subcategory_breakdown_chart(breakdown, category_name)
+                        st.plotly_chart(fig, use_container_width=True)
+                        
+                        # Display detailed breakdown table
+                        st.markdown("#### Detailed Breakdown")
+                        breakdown_display = breakdown.copy()
+                        breakdown_display['amount'] = breakdown_display['amount'].apply(lambda x: f"${x:.2f}")
+                        breakdown_display['percentage'] = breakdown_display['percentage'].apply(lambda x: f"{x:.1f}%")
+                        breakdown_display.columns = ['Subcategory', 'Amount', 'Percentage']
+                        st.dataframe(breakdown_display, use_container_width=True, hide_index=True)
+                    else:
+                        st.info("No data available for this category")
             
         except Exception as e:
             # Display error message if file processing fails

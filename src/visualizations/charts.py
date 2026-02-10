@@ -237,3 +237,76 @@ def create_rolling_average_chart(rolling: pd.Series) -> go.Figure:
     )
     
     return fig
+
+
+def create_subcategory_breakdown_chart(breakdown: pd.DataFrame, category_name: str) -> go.Figure:
+    """
+    Create a horizontal bar chart showing subcategory breakdown with percentages.
+    
+    Args:
+        breakdown (pd.DataFrame): Subcategory breakdown with columns:
+            - subcategory (str): Subcategory name
+            - amount (float): Absolute spending amount
+            - percentage (float): Percentage of category total
+        category_name (str): Name of the parent category
+        
+    Returns:
+        plotly.graph_objects.Figure: Interactive horizontal bar chart
+        
+    Chart Specifications:
+        - Y-axis: Subcategory names
+        - X-axis: Amount (currency)
+        - Bars show absolute amounts
+        - Text labels show both amount and percentage
+    """
+    if breakdown.empty:
+        # Return empty figure with message
+        fig = go.Figure()
+        fig.add_annotation(
+            text="No data available for this category",
+            xref="paper",
+            yref="paper",
+            x=0.5,
+            y=0.5,
+            showarrow=False,
+            font=dict(size=16)
+        )
+        fig.update_layout(
+            title=f'{category_name} Category Breakdown',
+            margin=dict(l=50, r=50, t=80, b=50),
+            height=300
+        )
+        return fig
+    
+    # Create figure
+    fig = go.Figure()
+    
+    # Add horizontal bar chart
+    fig.add_trace(go.Bar(
+        y=breakdown['subcategory'],
+        x=breakdown['amount'],
+        orientation='h',
+        text=[f'${amt:.2f} ({pct:.1f}%)' 
+              for amt, pct in zip(breakdown['amount'], breakdown['percentage'])],
+        textposition='auto',
+        marker=dict(
+            color=breakdown['amount'],
+            colorscale='Blues',
+            showscale=False
+        ),
+        hovertemplate='<b>%{y}</b><br>Amount: $%{x:.2f}<br>Percentage: %{customdata:.1f}%<extra></extra>',
+        customdata=breakdown['percentage']
+    ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f'{category_name} Category Breakdown',
+        xaxis_title='Amount ($)',
+        yaxis_title='Subcategory',
+        height=max(300, len(breakdown) * 50 + 100),
+        margin=dict(l=200, r=50, t=80, b=50),
+        showlegend=False
+    )
+    
+    return fig
+
