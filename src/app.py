@@ -54,21 +54,30 @@ def main():
             # Display success message
             st.success(f"✅ File uploaded successfully! {len(df)} transactions loaded.")
             
-            # Calculate and display current balance
-            st.subheader("Account Balance")
+            # Calculate metrics upfront
             balance = calculate_current_balance(df)
+            monthly_summary = calculate_monthly_summary(df)
             
-            # Display KPI card for balance
+            # Display overview KPI cards in a better layout
+            st.subheader("📊 Financial Overview")
             col1, col2, col3 = st.columns(3)
             with col1:
-                display_kpi_card("Current Balance", balance)
-            
-            # Calculate monthly summary
-            monthly_summary = calculate_monthly_summary(df)
+                # Current balance with color coding
+                delta_color = "normal" if balance >= 0 else "inverse"
+                display_kpi_card("Current Balance", balance, delta_color=delta_color)
+            with col2:
+                if not monthly_summary.empty:
+                    avg_income = monthly_summary['total_income'].mean()
+                    display_kpi_card("Avg Monthly Income", avg_income)
+            with col3:
+                if not monthly_summary.empty:
+                    avg_expenses = monthly_summary['total_expenses'].mean()
+                    display_kpi_card("Avg Monthly Expenses", avg_expenses)
             
             # Display monthly income vs expenses chart (if data available)
             if not monthly_summary.empty:
-                st.subheader("Monthly Income vs Expenses")
+                st.markdown("---")
+                st.subheader("📈 Monthly Income vs Expenses")
                 
                 # Handle edge case: sparse data with missing months
                 # The chart will show actual data points; gaps indicate missing months
@@ -83,7 +92,8 @@ def main():
             category_breakdown = calculate_category_breakdown(df)
             
             if not category_breakdown.empty:
-                st.subheader("Spending by Category")
+                st.markdown("---")
+                st.subheader("🏷️ Spending by Category")
                 
                 # Create and display the stacked bar chart
                 fig_category = create_category_breakdown_chart(category_breakdown)
@@ -92,7 +102,8 @@ def main():
                 st.info("📊 No expense data available for category breakdown. Upload transactions with expenses (negative values) to see category analysis.")
             
             # Calculate and display rolling average (User Story 4: P4)
-            st.subheader("Spending Trends")
+            st.markdown("---")
+            st.subheader("📉 Spending Trends")
             
             # Calculate rolling average (filters to expenses only, window=3)
             rolling_avg = calculate_rolling_average(df, window=3)
@@ -108,20 +119,24 @@ def main():
             
             # Calculate and display financial summary metrics (User Story 5: P5)
             if not monthly_summary.empty:
-                st.subheader("Financial Summary Metrics")
+                st.markdown("---")
+                st.subheader("💰 Financial Summary Metrics")
                 
                 # Calculate financial metrics
                 metrics = calculate_financial_metrics(df, monthly_summary)
                 
-                # Display average savings KPI card
-                col1, col2, col3 = st.columns(3)
+                # Display financial summary KPI cards in improved layout
+                col1, col2 = st.columns(2)
                 with col1:
-                    display_kpi_card("Current Balance", metrics['current_balance'])
+                    # Average monthly savings with color coding
+                    savings_delta = "normal" if metrics['average_monthly_savings'] >= 0 else "inverse"
+                    display_kpi_card("Average Monthly Savings", metrics['average_monthly_savings'], delta_color=savings_delta)
                 with col2:
-                    display_kpi_card("Average Monthly Savings", metrics['average_monthly_savings'])
+                    # Total transactions count
+                    display_kpi_card("Total Transactions", len(df), format_currency=False)
                 
                 # Display best/worst month KPI cards
-                st.markdown("---")
+                st.markdown("####")
                 display_best_worst_months(metrics['best_month'], metrics['worst_month'])
             
         except Exception as e:

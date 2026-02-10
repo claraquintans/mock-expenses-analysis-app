@@ -146,16 +146,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Add application title and description at top of src/app.py
-- [ ] T040 [P] Improve visual layout with Streamlit columns for better KPI card arrangement
-- [ ] T041 [P] Add chart titles and axis labels to all visualizations
-- [ ] T042 Add currency formatting ($) to all monetary values in KPI cards
-- [ ] T043 [P] Add color coding to KPI cards (green for positive, red for negative values)
-- [ ] T044 [P] Create comprehensive sample data file with edge cases in data/comprehensive_sample.xlsx
-- [ ] T045 Test all edge cases: empty columns, invalid dates, single month data, all income/all expenses
-- [ ] T046 [P] Add inline documentation/docstrings to all functions per research.md recommendations
-- [ ] T047 Verify all success criteria from spec.md are met (5-10 second performance targets)
-- [ ] T048 Run through quickstart.md installation and usage steps to validate
+- [X] T039 [P] Add application title and description at top of src/app.py
+- [X] T040 [P] Improve visual layout with Streamlit columns for better KPI card arrangement
+- [X] T041 [P] Add chart titles and axis labels to all visualizations
+- [X] T042 Add currency formatting ($) to all monetary values in KPI cards
+- [X] T043 [P] Add color coding to KPI cards (green for positive, red for negative values)
+- [X] T044 [P] Create comprehensive sample data file with edge cases in data/comprehensive_sample.xlsx
+- [X] T045 Test all edge cases: empty columns, invalid dates, single month data, all income/all expenses
+- [X] T046 [P] Add inline documentation/docstrings to all functions per research.md recommendations
+- [X] T047 Verify all success criteria from spec.md are met (5-10 second performance targets)
+- [X] T048 Run through quickstart.md installation and usage steps to validate
 - [ ] T049 [P] Optional: Add unit tests in tests/unit/ for calculation functions (mock project - optional)
 - [ ] T050 [P] Optional: Configure Black/Ruff for code formatting (mock project - optional)
 
