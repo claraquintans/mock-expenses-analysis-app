@@ -9,6 +9,14 @@ import re
 import pandas as pd
 from typing import Dict
 
+# Compile regex pattern once at module level for better performance
+PUNCTUATION_PATTERN = re.compile(r'[^\w\s]')
+
+# Category pattern constants
+FOOD_PATTERNS = ['food', 'groceries', 'dining']
+TRANSPORT_PATTERNS = ['transport']
+HOBBIES_PATTERNS = ['hobbies', 'subscription', 'entertainment']
+
 
 def classify_food_subcategory(description: str) -> str:
     """
@@ -21,7 +29,7 @@ def classify_food_subcategory(description: str) -> str:
         str: 'Groceries' or 'Other Food Sources'
     """
     # Remove punctuation and special characters, convert to lowercase
-    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
+    description_lower = PUNCTUATION_PATTERN.sub(' ', description.lower())
     
     # Keywords for groceries
     grocery_keywords = [
@@ -49,7 +57,7 @@ def classify_transportation_subcategory(description: str) -> str:
         str: 'Public Transportation' or 'Private Transportation'
     """
     # Remove punctuation and special characters, convert to lowercase
-    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
+    description_lower = PUNCTUATION_PATTERN.sub(' ', description.lower())
     
     # Keywords for public transportation
     public_transport_keywords = [
@@ -78,7 +86,7 @@ def classify_hobbies_subcategory(description: str) -> str:
         str: Subscription type (streaming, fitness, gaming, educational, books, etc.)
     """
     # Remove punctuation and special characters, convert to lowercase
-    description_lower = re.sub(r'[^\w\s]', ' ', description.lower())
+    description_lower = PUNCTUATION_PATTERN.sub(' ', description.lower())
     
     # Define subcategories with keywords
     subcategory_keywords = {
@@ -134,11 +142,6 @@ def add_subcategory_column(df: pd.DataFrame) -> pd.DataFrame:
     
     df_copy = df.copy()
     
-    # Define category patterns to check
-    food_patterns = ['food', 'groceries', 'dining']
-    transport_patterns = ['transport']
-    hobbies_patterns = ['hobbies', 'subscription', 'entertainment']
-    
     def classify_row(row):
         category = row['category']
         description = row['description']
@@ -147,13 +150,13 @@ def add_subcategory_column(df: pd.DataFrame) -> pd.DataFrame:
         category_lower = category.lower()
         
         # Check if category matches food patterns
-        if any(pattern in category_lower for pattern in food_patterns):
+        if any(pattern in category_lower for pattern in FOOD_PATTERNS):
             return classify_food_subcategory(description)
         # Check if category matches transport patterns
-        elif any(pattern in category_lower for pattern in transport_patterns):
+        elif any(pattern in category_lower for pattern in TRANSPORT_PATTERNS):
             return classify_transportation_subcategory(description)
         # Check if category matches hobbies patterns
-        elif any(pattern in category_lower for pattern in hobbies_patterns):
+        elif any(pattern in category_lower for pattern in HOBBIES_PATTERNS):
             return classify_hobbies_subcategory(description)
         else:
             # For other categories, use the category name as subcategory
@@ -218,13 +221,17 @@ def calculate_subcategory_breakdown(df: pd.DataFrame, category: str) -> pd.DataF
 
 def get_all_category_breakdowns(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     """
-    Get subcategory breakdowns for all categories in the DataFrame.
+    Get subcategory breakdowns for all expense categories in the DataFrame.
+    
+    Note: Only analyzes expense transactions (negative values). Income transactions
+    are excluded from the analysis.
     
     Args:
         df (pd.DataFrame): Transactions DataFrame
         
     Returns:
-        Dict[str, pd.DataFrame]: Dictionary mapping category names to their subcategory breakdowns
+        Dict[str, pd.DataFrame]: Dictionary mapping expense category names to their 
+                                 subcategory breakdowns. Only includes categories with expenses.
         
     Raises:
         ValueError: If DataFrame is empty
@@ -235,7 +242,7 @@ def get_all_category_breakdowns(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     # Add subcategory column
     df_with_subcategory = add_subcategory_column(df)
     
-    # Get all unique categories from the dataframe (expenses only)
+    # Get all unique expense categories (filters to negative values only)
     expenses = df_with_subcategory[df_with_subcategory['value'] < 0]
     unique_categories = expenses['category'].unique()
     
