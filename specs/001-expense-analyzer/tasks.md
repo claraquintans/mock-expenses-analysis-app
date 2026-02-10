@@ -57,12 +57,12 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement calculate_current_balance(df) function in src/services/calculations.py
-- [ ] T012 [US1] Implement display_kpi_card(title, value) function in src/visualizations/kpi_cards.py
-- [ ] T013 [US1] Create main Streamlit app structure in src/app.py with file uploader widget
-- [ ] T014 [US1] Integrate file upload → validation → balance calculation → KPI display in src/app.py
-- [ ] T015 [US1] Add error handling for invalid file uploads with user-friendly messages in src/app.py
-- [ ] T016 [US1] Test with sample data to verify balance calculation accuracy
+- [X] T011 [US1] Implement calculate_current_balance(df) function in src/services/calculations.py
+- [X] T012 [US1] Implement display_kpi_card(title, value) function in src/visualizations/kpi_cards.py
+- [X] T013 [US1] Create main Streamlit app structure in src/app.py with file uploader widget
+- [X] T014 [US1] Integrate file upload → validation → balance calculation → KPI display in src/app.py
+- [X] T015 [US1] Add error handling for invalid file uploads with user-friendly messages in src/app.py
+- [X] T016 [US1] Test with sample data to verify balance calculation accuracy
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can upload files and see their balance
 
