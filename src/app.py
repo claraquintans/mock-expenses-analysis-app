@@ -49,8 +49,14 @@ def main():
             # Read Excel file
             df = read_excel_file(uploaded_file)
             
-            # Validate file structure
-            df = validate_file(df)
+            # Validate file structure and detect currency
+            df, currency_symbol = validate_file(df)
+            
+            # Store currency symbol in session state for display purposes
+            if currency_symbol:
+                st.session_state['currency_symbol'] = currency_symbol
+            else:
+                st.session_state['currency_symbol'] = '$'  # Default to dollar sign
             
             # Display success message
             st.success(f"✅ File uploaded successfully! {len(df)} transactions loaded.")
@@ -178,10 +184,13 @@ def main():
                         breakdown['percentage'] = (breakdown['amount'] / total) * 100
                         breakdown = breakdown.sort_values('amount', ascending=False)
                         
+                        # Get currency symbol from session state
+                        currency_symbol = st.session_state.get('currency_symbol', '$')
+                        
                         # Display summary metrics
                         col1, col2 = st.columns(2)
                         with col1:
-                            st.metric("Total Spending", f"${breakdown['amount'].sum():.2f}")
+                            st.metric("Total Spending", f"{currency_symbol}{breakdown['amount'].sum():.2f}")
                         with col2:
                             st.metric("Number of Subcategories", len(breakdown))
                         
@@ -193,7 +202,7 @@ def main():
                         # Display detailed breakdown table
                         st.markdown("#### Detailed Breakdown")
                         breakdown_display = breakdown.copy()
-                        breakdown_display['amount'] = breakdown_display['amount'].apply(lambda x: f"${x:.2f}")
+                        breakdown_display['amount'] = breakdown_display['amount'].apply(lambda x: f"{currency_symbol}{x:.2f}")
                         breakdown_display['percentage'] = breakdown_display['percentage'].apply(lambda x: f"{x:.1f}%")
                         breakdown_display.columns = ['Subcategory', 'Amount', 'Percentage']
                         st.dataframe(breakdown_display, use_container_width=True, hide_index=True)

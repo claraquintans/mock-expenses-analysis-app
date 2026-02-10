@@ -7,6 +7,7 @@ financial data in interactive visualizations.
 
 import pandas as pd
 import plotly.graph_objects as go
+import streamlit as st
 
 
 def create_income_expense_chart(monthly: pd.DataFrame) -> go.Figure:
@@ -65,11 +66,14 @@ def create_income_expense_chart(monthly: pd.DataFrame) -> go.Figure:
         marker=dict(size=8)
     ))
     
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     # Update layout
     fig.update_layout(
         title='Monthly Income vs Expenses',
         xaxis_title='Month',
-        yaxis_title='Amount ($)',
+        yaxis_title=f'Amount ({currency_symbol})',
         hovermode='x unified',
         legend=dict(
             orientation="h",
@@ -134,6 +138,9 @@ def create_category_breakdown_chart(breakdown: pd.DataFrame) -> go.Figure:
     # Get unique categories
     categories = breakdown_copy['category'].unique()
     
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     # Create figure
     fig = go.Figure()
     
@@ -145,7 +152,7 @@ def create_category_breakdown_chart(breakdown: pd.DataFrame) -> go.Figure:
             x=category_data['month_str'],
             y=category_data['spending'],
             name=category,
-            text=category_data['spending'].apply(lambda x: f'${x:.2f}'),
+            text=category_data['spending'].apply(lambda x: f'{currency_symbol}{x:.2f}'),
             textposition='auto',
         ))
     
@@ -153,7 +160,7 @@ def create_category_breakdown_chart(breakdown: pd.DataFrame) -> go.Figure:
     fig.update_layout(
         title='Monthly Spending by Category',
         xaxis_title='Month',
-        yaxis_title='Spending ($)',
+        yaxis_title=f'Spending ({currency_symbol})',
         barmode='stack',
         hovermode='x unified',
         legend=dict(
@@ -211,6 +218,9 @@ def create_rolling_average_chart(rolling: pd.Series) -> go.Figure:
     # Convert period index to string for plotting
     months_str = rolling.index.astype(str)
     
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     # Create figure
     fig = go.Figure()
     
@@ -222,7 +232,7 @@ def create_rolling_average_chart(rolling: pd.Series) -> go.Figure:
         name='3-Month Average',
         line=dict(color='#8b5cf6', width=3),
         marker=dict(size=10),
-        text=[f'${val:.2f}' for val in rolling.values],
+        text=[f'{currency_symbol}{val:.2f}' for val in rolling.values],
         textposition='top center'
     ))
     
@@ -230,7 +240,7 @@ def create_rolling_average_chart(rolling: pd.Series) -> go.Figure:
     fig.update_layout(
         title='3-Month Rolling Spending Average',
         xaxis_title='Month',
-        yaxis_title='Average Spending ($)',
+        yaxis_title=f'Average Spending ({currency_symbol})',
         hovermode='x unified',
         showlegend=False,
         margin=dict(l=50, r=50, t=80, b=50)
@@ -278,6 +288,9 @@ def create_subcategory_breakdown_chart(breakdown: pd.DataFrame, category_name: s
         )
         return fig
     
+    # Get currency symbol from session state, default to '$'
+    currency_symbol = st.session_state.get('currency_symbol', '$')
+    
     # Create figure
     fig = go.Figure()
     
@@ -286,7 +299,7 @@ def create_subcategory_breakdown_chart(breakdown: pd.DataFrame, category_name: s
         y=breakdown['subcategory'],
         x=breakdown['amount'],
         orientation='h',
-        text=[f'${amt:.2f} ({pct:.1f}%)' 
+        text=[f'{currency_symbol}{amt:.2f} ({pct:.1f}%)' 
               for amt, pct in zip(breakdown['amount'], breakdown['percentage'])],
         textposition='auto',
         marker=dict(
@@ -294,14 +307,14 @@ def create_subcategory_breakdown_chart(breakdown: pd.DataFrame, category_name: s
             colorscale='Blues',
             showscale=False
         ),
-        hovertemplate='<b>%{y}</b><br>Amount: $%{x:.2f}<br>Percentage: %{customdata:.1f}%<extra></extra>',
+        hovertemplate=f'<b>%{{y}}</b><br>Amount: {currency_symbol}%{{x:.2f}}<br>Percentage: %{{customdata:.1f}}%<extra></extra>',
         customdata=breakdown['percentage']
     ))
     
     # Update layout
     fig.update_layout(
         title=f'{category_name} Category Breakdown',
-        xaxis_title='Amount ($)',
+        xaxis_title=f'Amount ({currency_symbol})',
         yaxis_title='Subcategory',
         height=max(300, len(breakdown) * 50 + 100),
         margin=dict(l=200, r=50, t=80, b=50),

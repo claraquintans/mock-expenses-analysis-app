@@ -23,6 +23,11 @@ htmlcov/
 # Data files
 data/
 
+# Test scripts (temporary)
+test_currency_handling.py
+verify_acceptance_criteria.py
+create_currency_test_data.py
+
 # Environment
 .env
 .env.*
